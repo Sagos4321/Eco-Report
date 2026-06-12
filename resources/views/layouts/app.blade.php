@@ -74,6 +74,7 @@
       </nav>
     </div>
 
+    <!-- Area Konten Utama -->
     <div class="layout-container flex h-full grow flex-col pt-16 md:pt-24 px-2 md:px-4 pb-4">
         @yield('content')
     </div>
@@ -158,35 +159,50 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            
+            // 1. Logika Toggle Menu Mobile (Agar tombol garis 3 di HP bisa diklik)
+            const mobileBtn = document.getElementById("mobileMenuBtn");
+            const mobileMenu = document.getElementById("mobileMenu");
+
+            if (mobileBtn && mobileMenu) {
+                mobileBtn.addEventListener("click", () => {
+                    if (mobileMenu.classList.contains("hidden")) {
+                        mobileMenu.classList.remove("hidden");
+                        mobileMenu.classList.add("flex");
+                        setTimeout(() => mobileMenu.classList.remove("scale-95", "opacity-0"), 10);
+                    } else {
+                        mobileMenu.classList.add("scale-95", "opacity-0");
+                        setTimeout(() => {
+                            mobileMenu.classList.add("hidden");
+                            mobileMenu.classList.remove("flex");
+                        }, 300);
+                    }
+                });
+            }
+
+            // 2. Logika Sesi Login (Mengarahkan ke halaman /profil)
             const user = JSON.parse(localStorage.getItem("eco_current_user"));
             const loginBtn = document.getElementById("loginBtn");
             const mobileLoginBtn = document.getElementById("mobileLoginBtn");
 
             if (user) {
+                // Tampilan Desktop (Laptop)
                 if (loginBtn) {
-                    loginBtn.innerHTML = `<span class="material-symbols-outlined mr-1">account_circle</span> ${user.name}`;
-                    loginBtn.href = "#";
-                    loginBtn.onclick = (e) => {
-                        e.preventDefault();
-                        if(confirm(`Halo ${user.name}, yakin ingin keluar dari akun?`)) {
-                            localStorage.removeItem("eco_current_user");
-                            window.location.reload();
-                        }
-                    };
+                    loginBtn.innerHTML = `<span class="material-symbols-outlined mr-1 align-bottom">account_circle</span> ${user.name}`;
+                    loginBtn.href = "{{ url('/profil') }}"; 
+                    loginBtn.onclick = null; // Menghapus alert log-out lama
                 }
+                
+                // Tampilan Mobile (HP)
                 if (mobileLoginBtn) {
-                    mobileLoginBtn.innerHTML = `<span class="material-symbols-outlined align-middle mr-1">logout</span> Keluar (${user.name})`;
-                    mobileLoginBtn.href = "#";
-                    mobileLoginBtn.onclick = (e) => {
-                        e.preventDefault();
-                        localStorage.removeItem("eco_current_user");
-                        window.location.reload();
-                    };
+                    mobileLoginBtn.innerHTML = `<span class="material-symbols-outlined align-middle mr-2">account_circle</span> Profil Saya`;
+                    mobileLoginBtn.href = "{{ url('/profil') }}"; 
+                    mobileLoginBtn.onclick = null; 
+                    // Pertegas warna tombol di HP
+                    mobileLoginBtn.className = "block w-full bg-primary text-white font-bold py-3 rounded-xl mt-2 text-center";
                 }
             }
         });
     </script>
-</body>
-</html>
 </body>
 </html>
