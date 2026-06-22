@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::create('likes', function (Blueprint $table) {
             $table->id();
-            // Menyambungkan komentar dengan tabel users dan reports
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('report_id')->constrained()->onDelete('cascade');
-            $table->text('body'); // Isi komentar
             $table->timestamps();
+
+            // Memastikan 1 user hanya bisa nge-like 1 kali pada 1 laporan yang sama
+            $table->unique(['user_id', 'report_id']);
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('likes');
     }
 };

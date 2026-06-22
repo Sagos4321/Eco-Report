@@ -11,8 +11,12 @@ class ReportController extends Controller
     // Halaman Jelajah (Melihat semua laporan publik)
     public function index()
     {
-        // Mengambil semua laporan, diurutkan dari yang terbaru
-        $reports = Report::with('user')->orderBy('created_at', 'desc')->get();
+        // HANYA ambil laporan dengan status 'approved'
+        $reports = \App\Models\Report::with('user')
+                    ->where('status', 'approved')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                    
         return view('jelajah', compact('reports'));
     }
 
@@ -55,5 +59,69 @@ class ReportController extends Controller
         ]);
 
         return redirect('/jelajah')->with('success', 'Laporan berhasil dikirim dan sedang menunggu tinjauan!');
+    }
+
+    public function approve($id)
+    {
+        $report = \App\Models\Report::findOrFail($id);
+        $report->status = 'approved';
+        $report->save();
+
+        return back()->with('success', 'Laporan berhasil disetujui!');
+    }
+
+    public function reject($id)
+    {
+        $report = \App\Models\Report::findOrFail($id);
+        $report->status = 'rejected';
+        $report->save();
+
+        return back()->with('success', 'Laporan telah ditolak.');
+    }
+    
+    // Fungsi Tambah Komentar
+    public function addComment(Request $request, $id)
+    {
+        $request->validate(['body' => 'required|string']);
+        
+        $comment = new \App\Models\Comment();
+        $comment->user_id = \Illuminate\Support\Facades\Auth::id();
+        $comment->report_id = $id;
+        $comment->body = $request->body;
+        $comment->save();
+
+        return response()->json([
+            'success' => true,
+            'user_name' => \Illuminate\Support\Facades\Auth::user()->name,
+            'body' => $comment->body
+        ]);
+    }
+
+    // Fungsi Tombol Suka (Like / Unlike)
+    public function toggleLike($id)
+    {
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        
+        // Cek apakah user sudah pernah like laporan ini
+        $existingLike = \App\Models\Like::where('user_id', $userId)->where('report_id', $id)->first();
+        
+        if ($existingLike) {
+            $existingLike->delete(); // Jika sudah, batalkan Suka (Unlike)
+            $isLiked = false;
+        } else {
+            \App\Models\Like::create([ // Jika belum, tambahkan Suka (Like)
+                'user_id' => $userId,
+                'report_id' => $id
+            ]);
+            $isLiked = true;
+        }
+
+        $likeCount = \App\Models\Like::where('report_id', $id)->count();
+
+        return response()->json([
+            'success' => true,
+            'isLiked' => $isLiked,
+            'likeCount' => $likeCount
+        ]);
     }
 }

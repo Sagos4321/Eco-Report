@@ -90,7 +90,7 @@
                             <h3 class="text-neutral-500 font-medium text-sm">Total Laporan</h3>
                             <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">description</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-[#151613]">3</p>
+                        <p class="text-3xl font-extrabold text-[#151613]">{{ $reports->count() }}</p>
                     </div>
                     
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral-100">
@@ -98,15 +98,15 @@
                             <h3 class="text-neutral-500 font-medium text-sm">Perlu Verifikasi</h3>
                             <span class="material-symbols-outlined text-amber-500 bg-amber-50 p-2 rounded-lg">pending_actions</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-[#151613]">1</p>
+                        <p class="text-3xl font-extrabold text-[#151613]">{{ $reports->where('status', 'pending')->count() }}</p>
                     </div>
 
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral-100">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-neutral-500 font-medium text-sm">Sedang Proses</h3>
-                            <span class="material-symbols-outlined text-blue-500 bg-blue-50 p-2 rounded-lg">autorenew</span>
+                            <h3 class="text-neutral-500 font-medium text-sm">Disetujui Publik</h3>
+                            <span class="material-symbols-outlined text-green-500 bg-green-50 p-2 rounded-lg">check_circle</span>
                         </div>
-                        <p class="text-3xl font-extrabold text-[#151613]">2</p>
+                        <p class="text-3xl font-extrabold text-[#151613]">{{ $reports->where('status', 'approved')->count() }}</p>
                     </div>
 
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral-100">
@@ -114,12 +114,69 @@
                             <h3 class="text-neutral-500 font-medium text-sm">Pengguna Aktif</h3>
                             <span class="material-symbols-outlined text-purple-500 bg-purple-50 p-2 rounded-lg">group</span>
                         </div>
-                        <p id="stat-total-users" class="text-3xl font-extrabold text-[#151613]">0</p>
+                        <p class="text-3xl font-extrabold text-[#151613]">{{ $totalUsers }}</p>
                     </div>
                 </div>
             </div>
 
-            <div id="view-laporan" class="space-y-6 hidden"><h3 class="text-2xl font-bold">Menu Laporan Warga</h3></div>
+            <div id="view-laporan" class="space-y-6 hidden">
+                <h3 class="text-2xl font-bold">Daftar Laporan Masuk</h3>
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-50 text-neutral-500 text-sm border-b border-neutral-100">
+                                <th class="p-4 font-medium">Tanggal</th>
+                                <th class="p-4 font-medium">Pelapor</th>
+                                <th class="p-4 font-medium">Judul & Lokasi</th>
+                                <th class="p-4 font-medium text-center">Status</th>
+                                <th class="p-4 font-medium text-center">Aksi Verifikasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($reports as $report)
+                            <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                                <td class="p-4 text-sm">{{ $report->created_at->format('d M Y') }}</td>
+                                <td class="p-4 text-sm font-bold">{{ $report->user->name ?? 'Anonim' }}</td>
+                                <td class="p-4">
+                                    <p class="text-sm font-bold">{{ $report->title }}</p>
+                                    <p class="text-xs text-neutral-500">{{ $report->location }}</p>
+                                </td>
+                                <td class="p-4 text-center">
+                                    @if($report->status == 'pending')
+                                        <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-bold border border-amber-200">Menunggu</span>
+                                    @elseif($report->status == 'approved')
+                                        <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-bold border border-green-200">Disetujui</span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold border border-red-200">Ditolak</span>
+                                    @endif
+                                </td>
+                                <td class="p-4 flex items-center justify-center gap-2">
+                                    @if($report->status == 'pending')
+                                        <form action="{{ route('admin.report.approve', $report->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm">
+                                                <span class="material-symbols-outlined text-[14px]">check</span> Setuju
+                                            </button>
+                                        </form>
+                                        
+                                        <form action="{{ route('admin.report.reject', $report->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1 shadow-sm">
+                                                <span class="material-symbols-outlined text-[14px]">close</span> Tolak
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs font-medium text-neutral-400 italic">Telah Diverifikasi</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div id="view-pengguna" class="space-y-6 hidden"><h3 class="text-2xl font-bold">Daftar Pengguna</h3></div>
             <div id="view-kategori" class="space-y-6 hidden"><h3 class="text-2xl font-bold">Manajemen Kategori</h3></div>
 

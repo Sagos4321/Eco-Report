@@ -25,4 +25,15 @@ class Report extends Model
     {
         return $this->belongsTo(User::class);
     }
+    // Tambahkan di bawah relasi user() yang sudah ada sebelumnya
+    
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->orderBy('created_at', 'asc');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
 }
