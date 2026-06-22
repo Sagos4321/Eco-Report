@@ -69,14 +69,17 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 transition-opacity duration-300"></div>
                         
                         <div class="absolute top-6 left-6 flex flex-wrap gap-2 pr-4 z-10">
-                            @if(($report->category ?? '') == 'Penebangan Liar')
-                                <span class="px-4 py-1.5 rounded-full bg-red-500/80 backdrop-blur-md text-white text-xs font-bold border border-red-400/50 shadow-sm">{{ $report->category }}</span>
-                            @elseif(($report->category ?? '') == 'Polusi / Pembuangan Limbah')
-                                <span class="px-4 py-1.5 rounded-full bg-amber-500/80 backdrop-blur-md text-white text-xs font-bold border border-amber-400/50 shadow-sm">Polusi / Limbah</span>
+                            @if($report->title == 'Penebangan Liar' || $report->title == 'Penambangan Liar')
+                                <span class="px-4 py-1.5 rounded-full bg-red-500/80 backdrop-blur-md text-white text-xs font-bold border border-red-400/50 shadow-sm">{{ $report->title }}</span>
+                            @elseif($report->title == 'Polusi / Pembuangan Limbah' || $report->title == 'Pencemaran Air')
+                                <span class="px-4 py-1.5 rounded-full bg-amber-500/80 backdrop-blur-md text-white text-xs font-bold border border-amber-400/50 shadow-sm">{{ $report->title }}</span>
+                            @elseif($report->title == 'Kebakaran Hutan')
+                                <span class="px-4 py-1.5 rounded-full bg-orange-500/80 backdrop-blur-md text-white text-xs font-bold border border-orange-400/50 shadow-sm">Kebakaran Hutan</span>
+                            @elseif($report->title == 'Sampah Ilegal')
+                                <span class="px-4 py-1.5 rounded-full bg-yellow-600/80 backdrop-blur-md text-white text-xs font-bold border border-yellow-500/50 shadow-sm">Sampah Ilegal</span>
                             @else
-                                <span class="px-4 py-1.5 rounded-full bg-blue-500/80 backdrop-blur-md text-white text-xs font-bold border border-blue-400/50 shadow-sm">{{ $report->category ?? 'Lainnya' }}</span>
+                                <span class="px-4 py-1.5 rounded-full bg-blue-500/80 backdrop-blur-md text-white text-xs font-bold border border-blue-400/50 shadow-sm">{{ $report->title }}</span>
                             @endif
-                            <span class="px-3 py-1.5 rounded-full bg-green-500/80 backdrop-blur-md text-white text-xs font-medium border border-white/10">Diverifikasi</span>
                         </div>
                         
                         <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 translate-y-4 group-hover:-translate-y-2 transition-transform duration-500 ease-out z-10">
@@ -85,6 +88,16 @@
                                 <p class="text-[#D4E8C2] text-sm font-medium">{{ $report->location }}</p>
                             </div>
                             <h3 class="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">{{ $report->title }}</h3>
+                            <div class="flex items-center gap-4 text-xs font-bold text-[#D4E8C2]/85 mt-2">
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm text-red-400">favorite</span>
+                                    <span id="card-like-{{ $report->id }}">{{ $reportLikes->count() }}</span> Dukungan
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm text-blue-400">chat</span>
+                                    <span id="card-comment-{{ $report->id }}">{{ $report->comments->count() }}</span> Komentar
+                                </span>
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -164,22 +177,30 @@
     // Cek status login ke JavaScript
     const isLoggedIn = @json(Auth::check());
 
+    // Caching state of reports to prevent modal resets when closing/opening
+    const reportsState = {};
+
     function openReport(report) {
-        document.getElementById("modalImage").src = report.image_url;
-        document.getElementById("modalTitle").innerText = report.title;
-        document.getElementById("modalUserName").innerText = report.user_name;
-        document.getElementById("modalUserAvatar").innerText = report.user_name.charAt(0).toUpperCase();
-        document.getElementById("modalDate").innerText = report.date;
-        document.getElementById("modalDescription").innerText = report.description;
+        if (!reportsState[report.id]) {
+            reportsState[report.id] = JSON.parse(JSON.stringify(report)); // deep clone
+        }
+        const activeReport = reportsState[report.id];
+
+        document.getElementById("modalImage").src = activeReport.image_url;
+        document.getElementById("modalTitle").innerText = activeReport.title;
+        document.getElementById("modalUserName").innerText = activeReport.user_name;
+        document.getElementById("modalUserAvatar").innerText = activeReport.user_name.charAt(0).toUpperCase();
+        document.getElementById("modalDate").innerText = activeReport.date;
+        document.getElementById("modalDescription").innerText = activeReport.description;
         
-        document.getElementById("formReportId").value = report.id;
-        document.getElementById("likeCount").innerText = report.likes;
-        document.getElementById("commentCount").innerText = report.comments.length;
+        document.getElementById("formReportId").value = activeReport.id;
+        document.getElementById("likeCount").innerText = activeReport.likes;
+        document.getElementById("commentCount").innerText = activeReport.comments.length;
 
         // Atur warna tombol Like jika sudah dilike
         const btnLike = document.getElementById("btnLike");
         const iconLike = document.getElementById("iconLike");
-        if(report.isLikedByMe) {
+        if(activeReport.isLikedByMe) {
             btnLike.classList.add("text-red-500", "bg-red-50", "border-red-200");
             iconLike.classList.add("fill-current");
         } else {
@@ -190,10 +211,10 @@
         // Render Daftar Komentar
         const list = document.getElementById("commentsList");
         list.innerHTML = "";
-        if(report.comments.length === 0) {
+        if(activeReport.comments.length === 0) {
             list.innerHTML = `<p class="text-sm text-neutral-400 italic" id="emptyKomen">Belum ada komentar.</p>`;
         } else {
-            report.comments.forEach(c => {
+            activeReport.comments.forEach(c => {
                 list.innerHTML += `
                     <div class="bg-neutral-50 p-3 rounded-xl border border-neutral-100">
                         <p class="text-xs font-bold text-[#151613] mb-1">${c.name}</p>
@@ -260,6 +281,11 @@
             const data = await response.json();
             
             if (data.success) {
+                const activeReport = reportsState[reportId];
+                if (activeReport) {
+                    activeReport.comments.push({ name: data.user_name, text: data.body });
+                }
+
                 // Sembunyikan tulisan "Belum ada komentar"
                 const emptyKomen = document.getElementById("emptyKomen");
                 if(emptyKomen) emptyKomen.remove();
@@ -274,7 +300,14 @@
                 
                 // Tambah angka jumlah komentar
                 let count = parseInt(document.getElementById("commentCount").innerText);
-                document.getElementById("commentCount").innerText = count + 1;
+                const newCount = count + 1;
+                document.getElementById("commentCount").innerText = newCount;
+
+                // Update kartu di grid
+                const cardComment = document.getElementById(`card-comment-${reportId}`);
+                if (cardComment) {
+                    cardComment.innerText = newCount;
+                }
                 
                 input.value = ""; // Bersihkan kolom
                 
@@ -309,10 +342,22 @@
             const data = await response.json();
             
             if (data.success) {
+                const activeReport = reportsState[reportId];
+                if (activeReport) {
+                    activeReport.likes = data.likeCount;
+                    activeReport.isLikedByMe = data.isLiked;
+                }
+
                 const btnLike = document.getElementById("btnLike");
                 const iconLike = document.getElementById("iconLike");
                 
                 document.getElementById("likeCount").innerText = data.likeCount;
+
+                // Update kartu di grid
+                const cardLike = document.getElementById(`card-like-${reportId}`);
+                if (cardLike) {
+                    cardLike.innerText = data.likeCount;
+                }
 
                 if (data.isLiked) {
                     btnLike.classList.add("text-red-500", "bg-red-50", "border-red-200");

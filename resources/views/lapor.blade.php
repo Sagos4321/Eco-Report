@@ -29,8 +29,19 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                     <div class="space-y-2 md:space-y-3">
-                        <label class="text-sm font-bold text-[#151613] ml-1">Judul Laporan</label>
-                        <input type="text" name="title" class="w-full bg-neutral-50 border-0 rounded-2xl px-4 py-3 ring-1 ring-neutral-200 focus:ring-2 focus:ring-primary outline-none" placeholder="Contoh: Pencemaran Sungai A" required />
+                        <label class="text-sm font-bold text-[#151613] ml-1">Judul / Kategori Laporan</label>
+                        <select id="title-select" class="w-full bg-[#f8faf7] border-0 rounded-2xl px-4 py-3 ring-1 ring-neutral-200 focus:ring-2 focus:ring-primary outline-none" required>
+                            <option value="" disabled selected>Pilih judul / kategori...</option>
+                            <option value="Penambangan Liar">Penambangan Liar</option>
+                            <option value="Penebangan Liar">Penebangan Liar</option>
+                            <option value="Polusi / Pembuangan Limbah">Polusi / Pembuangan Limbah</option>
+                            <option value="Kebakaran Hutan">Kebakaran Hutan</option>
+                            <option value="Pencemaran Air">Pencemaran Air</option>
+                            <option value="Sampah Ilegal">Sampah Ilegal</option>
+                            <option value="Lainnya">Lainnya...</option>
+                        </select>
+                        <input type="hidden" name="title" id="title-hidden" required />
+                        <input type="text" id="title-custom" class="hidden w-full mt-2 bg-[#f8faf7] border-0 rounded-2xl px-4 py-3 ring-1 ring-neutral-200 focus:ring-2 focus:ring-primary outline-none" placeholder="Tuliskan judul laporan kustom Anda..." />
                     </div>
                     
                     <div class="space-y-2 md:space-y-3">
@@ -77,4 +88,31 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const titleSelect = document.getElementById('title-select');
+        const titleCustom = document.getElementById('title-custom');
+        const titleHidden = document.getElementById('title-hidden');
+
+        titleSelect.addEventListener('change', function() {
+            if (this.value === 'Lainnya') {
+                titleCustom.classList.remove('hidden');
+                titleCustom.setAttribute('required', 'required');
+                titleHidden.value = titleCustom.value;
+                titleCustom.focus();
+            } else {
+                titleCustom.classList.add('hidden');
+                titleCustom.removeAttribute('required');
+                titleHidden.value = this.value;
+            }
+        });
+
+        titleCustom.addEventListener('input', function() {
+            if (titleSelect.value === 'Lainnya') {
+                titleHidden.value = this.value;
+            }
+        });
+    });
+</script>
 @endsection

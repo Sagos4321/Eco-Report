@@ -118,6 +118,11 @@ class ReportController extends Controller
 
         $likeCount = \App\Models\Like::where('report_id', $id)->count();
 
+        // Sinkronisasi kolom likes di tabel reports agar data di profil terupdate
+        $report = \App\Models\Report::findOrFail($id);
+        $report->likes = $likeCount;
+        $report->save();
+
         return response()->json([
             'success' => true,
             'isLiked' => $isLiked,

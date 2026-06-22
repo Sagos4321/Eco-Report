@@ -30,7 +30,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', function () { 
         $reports = \App\Models\Report::with('user')->orderBy('created_at', 'desc')->get();
         $totalUsers = \App\Models\User::count();
-        return view('admin', compact('reports', 'totalUsers')); 
+        $users = \App\Models\User::withCount('reports')->orderBy('reports_count', 'desc')->get();
+        return view('admin', compact('reports', 'totalUsers', 'users')); 
     })->name('admin.dashboard');
 
     // Aksi Setujui dan Tolak

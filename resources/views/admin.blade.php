@@ -47,9 +47,6 @@
                 <button onclick="switchMenu('pengguna')" id="menu-pengguna" class="w-full flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-50 hover:text-[#151613] rounded-xl font-medium transition-all">
                     <span class="material-symbols-outlined">group</span> Pengguna
                 </button>
-                <button onclick="switchMenu('kategori')" id="menu-kategori" class="w-full flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-50 hover:text-[#151613] rounded-xl font-medium transition-all">
-                    <span class="material-symbols-outlined">category</span> Kategori
-                </button>
             </nav>
         </div>
         
@@ -177,8 +174,45 @@
                 </div>
             </div>
 
-            <div id="view-pengguna" class="space-y-6 hidden"><h3 class="text-2xl font-bold">Daftar Pengguna</h3></div>
-            <div id="view-kategori" class="space-y-6 hidden"><h3 class="text-2xl font-bold">Manajemen Kategori</h3></div>
+            <div id="view-pengguna" class="space-y-6 hidden">
+                <h3 class="text-2xl font-bold">Daftar Pengguna / Relawan</h3>
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-50 text-neutral-500 text-sm border-b border-neutral-100">
+                                <th class="p-4 font-medium">Nama</th>
+                                <th class="p-4 font-medium">Email</th>
+                                <th class="p-4 font-medium text-center">Jumlah Laporan</th>
+                                <th class="p-4 font-medium text-center">Tanggal Bergabung</th>
+                                <th class="p-4 font-medium text-center">Peran</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($users as $user)
+                            <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
+                                <td class="p-4 text-sm font-bold flex items-center gap-3">
+                                    <div class="size-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                    <span>{{ $user->name }}</span>
+                                </td>
+                                <td class="p-4 text-sm text-neutral-600">{{ $user->email }}</td>
+                                <td class="p-4 text-sm text-center font-bold text-neutral-800">{{ $user->reports_count }} Laporan</td>
+                                <td class="p-4 text-sm text-center text-neutral-500">{{ $user->created_at->format('d M Y') }}</td>
+                                <td class="p-4 text-center">
+                                    @if($user->role == 'admin')
+                                        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-600 text-xs font-bold border border-purple-200">Administrator</span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-bold border border-green-200">Relawan</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
         </div>
     </main>
@@ -186,7 +220,7 @@
     <script>
         // Navigasi SPA (Tukar Tampilan)
         function switchMenu(targetView) {
-            const menus = ['ringkasan', 'laporan', 'pengguna', 'kategori'];
+            const menus = ['ringkasan', 'laporan', 'pengguna'];
             menus.forEach(menu => {
                 document.getElementById(`menu-${menu}`).className = "w-full flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-50 hover:text-[#151613] rounded-xl font-medium transition-all";
                 document.getElementById(`view-${menu}`).classList.add("hidden");
@@ -207,9 +241,6 @@
             } else if (targetView === 'pengguna') {
                 title.innerText = "Manajemen Pengguna";
                 subtitle.innerText = "Kelola data relawan dan administrator.";
-            } else if (targetView === 'kategori') {
-                title.innerText = "Kategori Laporan";
-                subtitle.innerText = "Atur jenis-jenis pelanggaran yang bisa dilaporkan.";
             }
         }
     </script>
