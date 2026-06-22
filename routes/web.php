@@ -1,29 +1,35 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReportController;
 
-Route::get('/', function () {
-    return view('home');
+// --- SOLUSI 404: Tangkap redirect bawaan Laravel ---
+Route::redirect('/home', '/');
+// ---------------------------------------------------
+
+// Rute untuk Tamu (belum login)
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-Route::get('/jelajah', function () {
-    return view('jelajah');
+// Rute untuk User yang sudah login
+Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profil', [AuthController::class, 'profile'])->name('profil');
+    Route::get('/lapor', [ReportController::class, 'create'])->name('lapor');
+    Route::post('/lapor', [ReportController::class, 'store'])->name('lapor.post');
 });
 
-Route::get('/lapor', function () {
-    return view('lapor');
+// Rute Admin (Hanya untuk role admin)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin', function () { 
+        return view('admin'); 
+    });
 });
 
-Route::get('/login', function () {
-    return view('login');
-});
-
-// Halaman Dasbor Admin
-Route::get('/admin', function () {
-    return view('admin');
-});
-
-// Halaman Profil Pengguna
-Route::get('/profil', function () {
-    return view('profil');
-});
+// Halaman Publik
+Route::get('/', function () { return view('home'); });
+Route::get('/jelajah', [ReportController::class, 'index'])->name('jelajah');

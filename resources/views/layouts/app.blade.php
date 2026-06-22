@@ -58,7 +58,19 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <a href="{{ url('/login') }}" id="loginBtn" class="hidden md:flex text-sm font-bold text-[#151613] hover:text-primary transition-colors">Masuk</a>
+          @guest
+          <a href="{{ route('login') }}" class="hidden md:flex items-center gap-2 bg-[#151613] text-white px-6 py-2.5 rounded-full font-bold hover:bg-black transition-colors shadow-md text-sm">
+            Masuk
+          </a>
+          @endguest
+
+          @auth
+          <a href="{{ route('profil') }}" class="hidden md:flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-full font-bold hover:bg-primary-dark transition-colors shadow-md text-sm">
+            <span class="material-symbols-outlined text-sm">account_circle</span> 
+            {{ Auth::user()->name }}
+          </a>
+          @endauth
+
           <button id="mobileMenuBtn" class="md:hidden flex items-center justify-center p-2 text-[#151613]">
             <span class="material-symbols-outlined">menu</span>
           </button>
@@ -68,13 +80,21 @@
           <a class="text-lg font-medium text-[#151613] py-2 border-b border-neutral-100" href="{{ url('/') }}">Beranda</a>
           <a class="text-lg font-medium text-[#151613] py-2 border-b border-neutral-100" href="{{ url('/jelajah') }}">Jelajah</a>
           <a class="text-lg font-medium text-[#151613] py-2 border-b border-neutral-100" href="{{ url('/lapor') }}">Lapor</a>
-          <a href="{{ url('/login') }}" id="mobileLoginBtn" class="block w-full bg-neutral-100 text-[#151613] font-bold py-3 rounded-xl mt-2 text-center">Masuk / Daftar</a>
+          
+          @guest
+          <a href="{{ route('login') }}" class="block w-full bg-neutral-100 text-[#151613] font-bold py-3 rounded-xl mt-2 text-center">Masuk / Daftar</a>
+          @endguest
+
+          @auth
+          <a href="{{ route('profil') }}" class="block w-full bg-primary text-white font-bold py-3 rounded-xl mt-2 text-center">
+            <span class="material-symbols-outlined align-middle mr-2">account_circle</span> Profil Saya
+          </a>
+          @endauth
         </div>
 
       </nav>
     </div>
 
-    <!-- Area Konten Utama -->
     <div class="layout-container flex h-full grow flex-col pt-16 md:pt-24 px-2 md:px-4 pb-4">
         @yield('content')
     </div>
@@ -179,29 +199,7 @@
                     }
                 });
             }
-
-            // 2. Logika Sesi Login (Mengarahkan ke halaman /profil)
-            const user = JSON.parse(localStorage.getItem("eco_current_user"));
-            const loginBtn = document.getElementById("loginBtn");
-            const mobileLoginBtn = document.getElementById("mobileLoginBtn");
-
-            if (user) {
-                // Tampilan Desktop (Laptop)
-                if (loginBtn) {
-                    loginBtn.innerHTML = `<span class="material-symbols-outlined mr-1 align-bottom">account_circle</span> ${user.name}`;
-                    loginBtn.href = "{{ url('/profil') }}"; 
-                    loginBtn.onclick = null; // Menghapus alert log-out lama
-                }
-                
-                // Tampilan Mobile (HP)
-                if (mobileLoginBtn) {
-                    mobileLoginBtn.innerHTML = `<span class="material-symbols-outlined align-middle mr-2">account_circle</span> Profil Saya`;
-                    mobileLoginBtn.href = "{{ url('/profil') }}"; 
-                    mobileLoginBtn.onclick = null; 
-                    // Pertegas warna tombol di HP
-                    mobileLoginBtn.className = "block w-full bg-primary text-white font-bold py-3 rounded-xl mt-2 text-center";
-                }
-            }
+            
         });
     </script>
 </body>
