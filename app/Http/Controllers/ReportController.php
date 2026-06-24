@@ -81,21 +81,23 @@ class ReportController extends Controller
     
     // Fungsi Tambah Komentar
     public function addComment(Request $request, $id)
-    {
-        $request->validate(['body' => 'required|string']);
-        
-        $comment = new \App\Models\Comment();
-        $comment->user_id = \Illuminate\Support\Facades\Auth::id();
-        $comment->report_id = $id;
-        $comment->body = $request->body;
-        $comment->save();
+{
+    $request->validate([
+        'body' => 'required|string'
+    ]);
 
-        return response()->json([
-            'success' => true,
-            'user_name' => \Illuminate\Support\Facades\Auth::user()->name,
-            'body' => $comment->body
-        ]);
-    }
+    $comment = new \App\Models\Comment();
+    $comment->user_id = auth()->id();
+    $comment->report_id = $id;
+    $comment->comment_text = $request->body;
+    $comment->save();
+
+    return response()->json([
+        'success' => true,
+        'user_name' => auth()->user()->name,
+        'body' => $comment->comment_text
+    ]);
+}
 
     // Fungsi Tombol Suka (Like / Unlike)
     public function toggleLike($id)
