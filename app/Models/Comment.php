@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Comment extends Model
 {
     use HasFactory;
+    protected $fillable = ['user_id', 'report_id', 'comment_text'];
 
-    protected $fillable = ['user_id', 'report_id', 'body'];
+    protected $appends = ['text', 'name'];
 
     // Komentar ini milik siapa?
     public function user()
@@ -21,5 +22,17 @@ class Comment extends Model
     public function report()
     {
         return $this->belongsTo(Report::class);
+    }
+
+    
+    public function getTextAttribute()
+    {
+        return $this->comment_text;
+    }
+
+   
+    public function getNameAttribute()
+    {
+        return $this->user ? $this->user->name : 'Anonymous';
     }
 }
