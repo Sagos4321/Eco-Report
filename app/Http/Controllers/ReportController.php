@@ -11,8 +11,8 @@ class ReportController extends Controller
     // Halaman Jelajah (Melihat semua laporan publik)
     public function index()
     {
-        // HANYA ambil laporan dengan status 'approved'
-        $reports = \App\Models\Report::with(['user', 'comments.user', 'likes'])
+            // tampilin yang udah approp aja dari admin
+            $reports = \App\Models\Report::with(['user', 'comments.user', 'likes'])
                     ->where('status', 'approved')
                     ->orderBy('created_at', 'desc')
                     ->get();

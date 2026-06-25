@@ -50,7 +50,10 @@
                     'likes' => $reportLikes->count(),
                     'isLikedByMe' => $isLikedByMe,
                     'comments' => $report->comments->map(function($c) {
-                        return ['name' => $c->user->name ?? 'Anonim', 'text' => $c->body];
+                        return [
+                            'name' => $c->user->name ?? 'Anonim',
+                            'text' => $c->comment_text
+                        ];
                     })->toArray()
                 ];
             @endphp
@@ -263,7 +266,7 @@
         const reportId = document.getElementById("formReportId").value;
         const input = document.getElementById("commentInput");
         const text = input.value.trim();
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const token = document.querySelector('input[name="_token"]').value;
 
         if(!text) return;
 
@@ -329,7 +332,7 @@
         }
 
         const reportId = document.getElementById("formReportId").value;
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const token = document.querySelector('input[name="_token"]').value;
 
         try {
             const response = await fetch(`/report/${reportId}/like`, {
