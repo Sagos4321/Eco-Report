@@ -82,16 +82,27 @@ class ReportController extends Controller
     // Fungsi Tambah Komentar
     public function addComment(Request $request, $id)
 {
+    // 1. Validasi input terlebih dahulu agar text komentar wajib diisi
     $request->validate([
-        'body' => 'required|string'
+        'comment_text' => 'required|string'
     ]);
 
+    // 2. Cek apakah user benar-benar sudah login
+    if (!auth()->check()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda harus login terlebih dahulu untuk berkomentar.'
+        ], 401); // Kirim status 401 Unauthorized
+    }
+
+    // 3. Jika lolos cek login, baru simpan komentar
     $comment = new \App\Models\Comment();
     $comment->user_id = auth()->id();
     $comment->report_id = $id;
-    $comment->comment_text = $request->body;
+    $comment->comment_text = $request->comment_text;
     $comment->save();
 
+    // 4. Kembalikan respon JSON sukses
     return response()->json([
         'success' => true,
         'user_name' => auth()->user()->name,

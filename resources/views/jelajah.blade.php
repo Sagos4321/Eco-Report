@@ -267,15 +267,16 @@
 
         if(!text) return;
 
-        // Kirim data ke Controller menggunakan Fetch API
+
         try {
             const response = await fetch(`/report/${reportId}/comment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': token
                 },
-                body: JSON.stringify({ body: text })
+                body: JSON.stringify({ comment_text: text })
             });
 
             const data = await response.json();
