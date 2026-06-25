@@ -12,7 +12,7 @@ class ReportController extends Controller
     public function index()
     {
         // HANYA ambil laporan dengan status 'approved'
-        $reports = \App\Models\Report::with('user')
+        $reports = \App\Models\Report::with(['user', 'comments.user', 'likes'])
                     ->where('status', 'approved')
                     ->orderBy('created_at', 'desc')
                     ->get();

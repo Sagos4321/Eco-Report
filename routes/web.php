@@ -51,6 +51,10 @@ Route::middleware('auth')->group(function () {
         }
     })->name('profil');
 
+    // Fitur Komentar & Like
+    Route::post('/report/{id}/comment', [ReportController::class, 'addComment'])->name('report.comment');
+    Route::post('/report/{id}/like', [ReportController::class, 'toggleLike'])->name('report.like');
+
     // Aksi Khusus Admin (Verifikasi Status Laporan)
     Route::middleware('admin')->group(function () {
         Route::post('/admin/report/{id}/approve', [ReportController::class, 'approve'])->name('admin.report.approve');

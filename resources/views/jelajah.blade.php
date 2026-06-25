@@ -263,7 +263,7 @@
         const reportId = document.getElementById("formReportId").value;
         const input = document.getElementById("commentInput");
         const text = input.value.trim();
-        const token = document.querySelector('input[name="_token"]').value;
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         if(!text) return;
 
@@ -329,7 +329,7 @@
         }
 
         const reportId = document.getElementById("formReportId").value;
-        const token = document.querySelector('input[name="_token"]').value;
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         try {
             const response = await fetch(`/report/${reportId}/like`, {
