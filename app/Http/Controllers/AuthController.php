@@ -2,20 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Menampilkan halaman Login/Register
-    public function showLogin()
+    public function login(Request $request)
     {
-        return view('login');
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            
+            // Semua pengguna (Admin & Warga) otomatis diarahkan ke Beranda
+            return redirect()->intended('/');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email atau kata sandi yang Anda masukkan salah.',
+        ])->onlyInput('email');
     }
 
-    // Proses Register
     public function register(Request $request)
     {
         $request->validate([
@@ -37,45 +49,13 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'Akun berhasil dibuat!');
     }
 
-    // Proses Login
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            
-            // Bersihkan format kata dari database (atasi huruf besar/spasi)
-            $role = strtolower(trim(Auth::user()->role));
-            
-            if ($role === 'admin') {
-                return redirect('/admin'); // Jika admin, arahkan ke Dasbor Admin
-            }
-            
-            return redirect('/'); // Jika user biasa, arahkan ke Beranda
-        }
-
-        return back()->withErrors(['email' => 'Email atau password salah.']);
-    }
-
-    // Proses Logout
     public function logout(Request $request)
     {
         Auth::logout();
+        
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
+        
         return redirect('/');
-    }
-
-    // Menampilkan halaman Profil
-    public function profile()
-    {
-        // Ambil data user yang sedang login beserta laporan miliknya
-        $user = Auth::user();
-        return view('profil', compact('user'));
     }
 }
