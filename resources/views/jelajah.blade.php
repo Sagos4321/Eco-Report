@@ -47,7 +47,7 @@
                     'image_url' => $report->image_path ? asset('storage/' . $report->image_path) : '',
                     'user_name' => $report->user ? $report->user->name : 'Anonim',
                     'date' => $report->created_at->format('d M Y'),
-                    'likes' => $reportLikes->count(),
+                    'likes' => $report->likes()->count(),
                     'isLikedByMe' => $isLikedByMe,
                     'comments' => $report->comments->map(function($c) {
                         return [
@@ -94,7 +94,9 @@
                             <div class="flex items-center gap-4 text-xs font-bold text-[#D4E8C2]/85 mt-2">
                                 <span class="flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm text-red-400">favorite</span>
-                                    <span id="card-like-{{ $report->id }}">{{ $reportLikes->count() }}</span> Dukungan
+                                    <span id="card-like-{{ $report->id }}">
+                                        {{ $report->likes()->count() }}
+                                    </span> Dukungan
                                 </span>
                                 <span class="flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm text-blue-400">chat</span>
@@ -326,7 +328,7 @@
 
     async function submitLike() {
         if (!isLoggedIn) {
-            alert("Silakan masuk (login) terlebih dahulu untuk memberi dukungan!");
+            alert("Silakan masuk (login) terlebih dahulu!");
             window.location.href = "{{ route('login') }}";
             return;
         }
@@ -346,22 +348,17 @@
             const data = await response.json();
             
             if (data.success) {
-                const activeReport = reportsState[reportId];
-                if (activeReport) {
-                    activeReport.likes = data.likeCount;
-                    activeReport.isLikedByMe = data.isLiked;
+                // 1. UPDATE STATE INTERNAL (Ini kunci agar sinkron)
+                if (reportsState[reportId]) {
+                    reportsState[reportId].likes = data.likeCount;
+                    reportsState[reportId].isLikedByMe = data.isLiked;
                 }
 
+                // 2. UPDATE TAMPILAN DI DALAM MODAL
+                document.getElementById("likeCount").innerText = data.likeCount;
+                
                 const btnLike = document.getElementById("btnLike");
                 const iconLike = document.getElementById("iconLike");
-                
-                document.getElementById("likeCount").innerText = data.likeCount;
-
-                // Update kartu di grid
-                const cardLike = document.getElementById(`card-like-${reportId}`);
-                if (cardLike) {
-                    cardLike.innerText = data.likeCount;
-                }
 
                 if (data.isLiked) {
                     btnLike.classList.add("text-red-500", "bg-red-50", "border-red-200");
@@ -370,9 +367,15 @@
                     btnLike.classList.remove("text-red-500", "bg-red-50", "border-red-200");
                     iconLike.classList.remove("fill-current");
                 }
+
+                // 3. UPDATE TAMPILAN DI KARTU LUAR (GRID)
+                const cardLike = document.getElementById(`card-like-${reportId}`);
+                if (cardLike) {
+                    cardLike.innerText = data.likeCount;
+                }
             }
         } catch (error) {
-            console.error("Gagal memberi dukungan:", error);
+            console.error("Gagal update dukungan:", error);
         }
     }
 </script>
