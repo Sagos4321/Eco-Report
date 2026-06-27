@@ -20,6 +20,8 @@
                 <h2 class="text-2xl font-bold text-[#151613] mb-1">{{ Auth::user()->name }}</h2>
                 <p class="text-sm text-neutral-500 mb-6">{{ Auth::user()->email }}</p>
                 
+                <a href="{{ route('profile.edit') }}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold"> Edit Profil </a>
+
                 <span class="px-4 py-1.5 bg-green-50 text-green-600 font-bold text-xs rounded-full border border-green-200 mb-8">
                     Relawan Aktif
                 </span>

@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ProfileController;
 
 // --- HALAMAN PUBLIK ---
 Route::get('/', function () {
@@ -61,4 +62,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/report/{id}/reject', [ReportController::class, 'reject'])->name('admin.report.reject');
     });
     
+    Route::get('/profil/edit', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::put('/profil/update', [ProfileController::class, 'update'])
+        ->name('profile.update');
 });
