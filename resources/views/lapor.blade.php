@@ -68,14 +68,20 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label for="file-upload" class="flex items-center gap-3 w-full bg-neutral-50 border border-dashed border-neutral-300 rounded-2xl px-4 py-4 cursor-pointer hover:border-primary transition-all">
+                        <button type="button" onclick="document.getElementById('file-upload').click()" 
+                                class="flex items-center gap-3 w-full bg-neutral-50 border border-dashed border-neutral-300 rounded-2xl px-4 py-4 hover:border-primary transition-all">
                             <span class="material-symbols-outlined text-neutral-400">cloud_upload</span>
-                            <div class="flex flex-col">
+                            <div class="flex flex-col text-left">
                                 <span class="text-xs font-bold text-[#151613]">Unggah Bukti Gambar</span>
                                 <span class="text-[10px] text-neutral-400">JPG, PNG (Maks 10MB)</span>
                             </div>
-                            <input name="image" class="hidden" id="file-upload" type="file" required />
-                        </label>
+                        </button>
+                        <input name="image" class="hidden" id="file-upload" type="file" onchange="handleFileChange(event)" required />
+                        
+                        <div id="fileInfo" class="hidden mt-2 flex items-center justify-between gap-2 text-xs text-neutral-600 bg-neutral-100 p-2 rounded-lg">
+                            <span id="fileName" class="truncate max-w-[150px]"></span>
+                            <button type="button" onclick="cancelFile()" class="text-red-500 font-bold px-2">✕</button>
+                        </div>
                     </div>
                 </div>
 
@@ -90,6 +96,7 @@
 </section>
 
 <script>
+    // Logic untuk Judul/Kategori
     document.addEventListener('DOMContentLoaded', function() {
         const titleSelect = document.getElementById('title-select');
         const titleCustom = document.getElementById('title-custom');
@@ -114,5 +121,24 @@
             }
         });
     });
+
+    // Logic untuk Upload Gambar
+    function handleFileChange(event) {
+        const input = event.target;
+        const fileInfo = document.getElementById('fileInfo');
+        const fileNameSpan = document.getElementById('fileName');
+
+        if (input.files && input.files.length > 0) {
+            fileNameSpan.innerText = input.files[0].name;
+            fileInfo.classList.remove('hidden');
+        }
+    }
+
+    function cancelFile() {
+        const input = document.getElementById('file-upload');
+        const fileInfo = document.getElementById('fileInfo');
+        input.value = ""; 
+        fileInfo.classList.add('hidden');
+    }
 </script>
 @endsection
