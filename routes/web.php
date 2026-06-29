@@ -31,40 +31,40 @@ Route::middleware('auth')->group(function () {
     Route::get('/lapor', function () {
         return view('lapor');
     });
-    
-    // PERBAIKAN: Mengubah nama rute menjadi 'lapor.post' agar cocok dengan file blade
     Route::post('/lapor', [ReportController::class, 'store'])->name('lapor.post');
     
-    // Rute Profil Pintar (Berubah sesuai Role)
+    // Rute Profil Pintar
     Route::get('/profil', function () {
-        $user = Auth::user();
+    $user = Auth::user();
+    
+    if ($user->role === 'admin') {
+        $reports = Report::with('user')->orderBy('created_at', 'desc')->get();
+        $users = User::withCount('reports')->get();
+        $totalUsers = $users->count();
         
-        if ($user->role === 'admin') {
-            // Jika yang klik profil adalah Admin, muat data dasbor
-            $reports = Report::with('user')->orderBy('created_at', 'desc')->get();
-            $users = User::withCount('reports')->get();
-            $totalUsers = $users->count();
-            
-            return view('admin', compact('reports', 'users', 'totalUsers'));
-        } else {
-            // Jika yang klik profil adalah Warga biasa
-            return view('profil');
-        }
-    })->name('profil');
+        // --- FITUR BARU: Menghitung laporan anonim ---
+        $anonymousCount = Report::whereNull('user_id')->count();
+        
+        return view('admin', compact('reports', 'users', 'totalUsers', 'anonymousCount'));
+    } else {
+        $myReports = Report::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        return view('profil', compact('myReports'));
+    }
+})->name('profil');
+
+    // FITUR BARU: Rute Hapus Laporan
+    Route::delete('/report/{id}', [ReportController::class, 'destroy'])->name('report.destroy');
 
     // Fitur Komentar & Like
     Route::post('/report/{id}/comment', [ReportController::class, 'addComment'])->name('report.comment');
     Route::post('/report/{id}/like', [ReportController::class, 'toggleLike'])->name('report.like');
 
-    // Aksi Khusus Admin (Verifikasi Status Laporan)
+    // Aksi Khusus Admin
     Route::middleware('admin')->group(function () {
         Route::post('/admin/report/{id}/approve', [ReportController::class, 'approve'])->name('admin.report.approve');
         Route::post('/admin/report/{id}/reject', [ReportController::class, 'reject'])->name('admin.report.reject');
     });
     
-    Route::get('/profil/edit', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-
-    Route::put('/profil/update', [ProfileController::class, 'update'])
-        ->name('profile.update');
+    Route::get('/profil/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profil/update', [ProfileController::class, 'update'])->name('profile.update');
 });

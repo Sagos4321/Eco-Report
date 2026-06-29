@@ -19,7 +19,6 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             
-            // Semua pengguna (Admin & Warga) otomatis diarahkan ke Beranda
             return redirect()->intended('/');
         }
 
@@ -43,7 +42,6 @@ class AuthController extends Controller
             'role' => 'user', // Default role
         ]);
 
-        // Langsung login setelah register
         Auth::login($user);
 
         return redirect('/')->with('success', 'Akun berhasil dibuat!');

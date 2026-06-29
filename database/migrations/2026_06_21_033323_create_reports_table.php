@@ -13,7 +13,8 @@ return new class extends Migration
 {
     Schema::create('reports', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+        // Tambahkan ->nullable() agar sistem mengizinkan kolom ini kosong
+        $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
         $table->string('title');
         $table->text('description');
         $table->string('location');

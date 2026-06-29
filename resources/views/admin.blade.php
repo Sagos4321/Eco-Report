@@ -69,7 +69,7 @@
             <form action="{{ route('logout') }}" method="POST" class="w-full">
                 @csrf
                 <button type="submit" onclick="return confirm('Yakin ingin keluar?')" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-bold transition-colors">
-                    <span class="material-symbols-outlined">logout</span> Keluar Dasbor
+                    <span class="material-symbols-outlined">logout</span> Keluar
                 </button>
             </form>
         </div>
@@ -201,32 +201,32 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-neutral-50 text-neutral-500 text-sm border-b border-neutral-100">
-                                <th class="p-4 font-medium">Nama</th>
-                                <th class="p-4 font-medium">Email</th>
-                                <th class="p-4 font-medium text-center">Jumlah Laporan</th>
-                                <th class="p-4 font-medium text-center">Tanggal Bergabung</th>
-                                <th class="p-4 font-medium text-center">Peran</th>
+                            <tr class="text-left text-neutral-500 border-b border-neutral-200">
+                                <th class="p-4 text-xs font-bold uppercase">Nama</th>
+                                <th class="p-4 text-xs font-bold uppercase">Email</th>
+                                <th class="p-4 text-xs font-bold uppercase">Laporan</th>
+                                <th class="p-4 text-xs font-bold uppercase">Tanggal</th>
+                                <th class="p-4 text-xs font-bold uppercase">Peran</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($users as $user)
-                            <tr class="border-b border-neutral-100 hover:bg-neutral-50 transition-colors">
-                                <td class="p-4 text-sm font-bold flex items-center gap-3">
-                                    <div class="size-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </div>
-                                    <span>{{ $user->name }}</span>
+                            <tr class="border-b border-neutral-100 bg-neutral-50/50">
+                                <td class="p-4">Anonim</td>
+                                <td class="p-4">-</td>
+                                <td class="p-4">{{ $anonymousCount }} Laporan</td>
+                                <td class="p-4">-</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 bg-neutral-200 text-neutral-700 text-xs rounded-full">Sistem</span>
                                 </td>
-                                <td class="p-4 text-sm text-neutral-600">{{ $user->email }}</td>
-                                <td class="p-4 text-sm text-center font-bold text-neutral-800">{{ $user->reports_count }} Laporan</td>
-                                <td class="p-4 text-sm text-center text-neutral-500">{{ $user->created_at->format('d M Y') }}</td>
-                                <td class="p-4 text-center">
-                                    @if($user->role == 'admin')
-                                        <span class="px-3 py-1 rounded-full bg-purple-50 text-purple-600 text-xs font-bold border border-purple-200">Administrator</span>
-                                    @else
-                                        <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-bold border border-green-200">Relawan</span>
-                                    @endif
+                            </tr>
+                            @foreach($users as $user)
+                            <tr class="border-b border-neutral-100">
+                                <td class="p-4">{{ $user->name }}</td>
+                                <td class="p-4">{{ $user->email }}</td>
+                                <td class="p-4">{{ $user->reports_count }} Laporan</td>
+                                <td class="p-4">{{ $user->created_at->format('d M Y') }}</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">{{ $user->role }}</span>
                                 </td>
                             </tr>
                             @endforeach

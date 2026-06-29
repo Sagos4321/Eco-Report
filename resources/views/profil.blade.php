@@ -92,6 +92,15 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Tambahkan ini di sebelah status laporan atau di bagian bawah card laporan -->
+                             <form action="{{ route('report.destroy', $report->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus laporan ini secara permanen?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-700 transition-colors px-3 py-1 rounded-lg hover:bg-red-50">
+                                    <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
+                                </button>
+                            </form>
                         @endforeach
                     @endif
                 </div>

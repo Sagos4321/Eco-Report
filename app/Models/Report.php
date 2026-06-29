@@ -9,7 +9,6 @@ class Report extends Model
 {
     use HasFactory;
 
-    // Tambahkan kode ini:
     protected $fillable = [
         'user_id',
         'title',
@@ -20,12 +19,10 @@ class Report extends Model
         'likes',
     ];
 
-    // Relasi ke User (opsional, tapi disarankan)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    // Tambahkan di bawah relasi user() yang sudah ada sebelumnya
     
     public function comments()
     {
